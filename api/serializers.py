@@ -3,11 +3,13 @@ from django.core.exceptions import ValidationError
 from .utils import toBase62
 from urllib.parse import urlparse
 from django.core.validators import URLValidator
+from django.conf import settings
 
 def serialize_urls(urls):
+    base_url = settings.SITE_DOMAIN
     return [{
             'created_at':obj.created_at,
-            'shortened_url': toBase62(obj.pk),
+            'shortened_url': '%s/%s'%(base_url,toBase62(obj.pk)),
             'redirects': {
                 'mobile': {
                     'target': obj.target_url_mobile,

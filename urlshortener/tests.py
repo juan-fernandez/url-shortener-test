@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from api.models import ShortUrl
 from api.utils import toBase10,toBase62
-import pdb
 import json
 from unittest.mock import patch
 from django.utils import timezone
@@ -49,7 +48,8 @@ class CreateAndFetchTest(TestCase):
         # Content - First
         first = result[0]
         self.assertTrue('shortened_url' in first)
-        self.assertEqual(toBase10(first['shortened_url']),15) # pk
+
+        self.assertEqual(toBase10(first['shortened_url'].split('/')[-1]),15) # pk
         self.assertTrue('redirects' in first)
         redirects_first = first['redirects']
         self.assertTrue('mobile' in redirects_first and 'desktop' in redirects_first and 'tablet' in redirects_first)
@@ -72,7 +72,7 @@ class CreateAndFetchTest(TestCase):
         # Content - Second
         first = result[1]
         self.assertTrue('shortened_url' in first)
-        self.assertEqual(toBase10(first['shortened_url']),16) # pk
+        self.assertEqual(toBase10(first['shortened_url'].split('/')[-1]),16) # pk
         self.assertTrue('redirects' in first)
         redirects_first = first['redirects']
         self.assertTrue('mobile' in redirects_first and 'desktop' in redirects_first and 'tablet' in redirects_first)
@@ -163,7 +163,7 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
         self.assertEqual(datetime.datetime.strptime(result['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
                         datetime.datetime(2011,1,1))
         redirects = result['redirects']
@@ -207,7 +207,7 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
         self.assertEqual(datetime.datetime.strptime(result['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
                         datetime.datetime(2011,1,1))
         redirects = result['redirects']
@@ -237,14 +237,14 @@ class CreateAndFetchTest(TestCase):
         shortUrl = ShortUrl.objects.get(target_url_desktop='http://jooraccess.com')
         redirect_url = toBase62(shortUrl.pk)
         content = response.json()
-        shortened_url = content['result'][0]['shortened_url']
+        shortened_url = content['result'][0]['shortened_url'].split('/')[-1]
         self.assertEqual(redirect_url,shortened_url)
         response_second = self.client.post(reverse('api:all'),json.dumps({
             "target_url":"jooraccess.com"
         }),content_type='application/json')
         self.assertEqual(response.status_code,200)
         content_second = response_second.json()
-        shortened_url_second = content_second['result'][0]['shortened_url']
+        shortened_url_second = content_second['result'][0]['shortened_url'].split('/')[-1]
         self.assertEqual(redirect_url,shortened_url_second)
         # with http added, the same
         response_third = self.client.post(reverse('api:all'),json.dumps({
@@ -253,7 +253,7 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(response.status_code,200)
         # Check properties
         content_third = response_third.json()
-        shortened_url_third = content_third['result'][0]['shortened_url']
+        shortened_url_third = content_third['result'][0]['shortened_url'].split('/')[-1]
         self.assertEqual(redirect_url,shortened_url_third)
         # with https added, it should be different
         response_fourth = self.client.post(reverse('api:all'),json.dumps({
@@ -262,7 +262,7 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(response.status_code,200)
         # Check properties
         content_third = response_fourth.json()
-        shortened_url_third = content_third['result'][0]['shortened_url']
+        shortened_url_third = content_third['result'][0]['shortened_url'].split('/')[-1]
         self.assertNotEqual(redirect_url,shortened_url_third)
 
     def test_wrong_http_methods(self):
@@ -322,7 +322,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
         redirects = result['redirects']
         self.assertTrue('mobile' in redirects and 'tablet' in redirects and 'desktop' in redirects)
         # mobile
@@ -359,7 +359,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
         redirects = result['redirects']
         self.assertTrue('mobile' in redirects and 'tablet' in redirects and 'desktop' in redirects)
         # mobile
@@ -557,7 +557,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'], toBase62(15))
+        self.assertEqual(result['shortened_url'].split('/')[-1], toBase62(15))
         redirects = result['redirects']
         self.assertTrue('mobile' in redirects and 'tablet' in redirects and 'desktop' in redirects)
         # mobile
@@ -615,7 +615,7 @@ class RedirectTest(TestCase):
         # Content - First
         first = result[0]
         self.assertTrue('shortened_url' in first)
-        self.assertEqual(toBase10(first['shortened_url']),15) # pk
+        self.assertEqual(toBase10(first['shortened_url'].split('/')[-1]),15) # pk
         self.assertTrue('redirects' in first)
         redirects_first = first['redirects']
         self.assertTrue('mobile' in redirects_first and 'desktop' in redirects_first and 'tablet' in redirects_first)
@@ -676,7 +676,7 @@ class RedirectTest(TestCase):
         # Content - First
         first = result[0]
         self.assertTrue('shortened_url' in first)
-        self.assertEqual(toBase10(first['shortened_url']),15) # pk
+        self.assertEqual(toBase10(first['shortened_url'].split('/')[-1]),15) # pk
         self.assertTrue('redirects' in first)
         redirects_first = first['redirects']
         self.assertTrue('mobile' in redirects_first and 'desktop' in redirects_first and 'tablet' in redirects_first)
