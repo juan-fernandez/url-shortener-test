@@ -91,7 +91,7 @@ Response:
 HTTP GET /api/v1/ 
 
 ### 3. Get info of an specific shortened URL
-HTTP GET /api/v1/shortened_url/<shortened_url_id>
+HTTP GET /api/v1/shortened_url/{shortened_url_id}
 
 Response:
 ```
@@ -121,7 +121,7 @@ Response:
 ### 4. Modify a shortened URL
 Modify a shortened_url to act differently depending on the device.
 
-HTTP POST /api/v1/shortened_url/<shortened_url_id> with body:
+HTTP POST /api/v1/shortened_url/{shortened_url_id} with body:
 ```
 {
   "target_url_<type_of_device>":"<desired_url>",
@@ -130,7 +130,7 @@ HTTP POST /api/v1/shortened_url/<shortened_url_id> with body:
 ```
 For example, for changing tablet and mobile:
 
-HTTP POST /api/v1/shortened_url/<shortened_url_id> with body:
+HTTP POST /api/v1/shortened_url/{shortened_url_id} with body:
 ```
 {
   "target_url_tablet":"<desired_url_tablet>",
@@ -164,7 +164,7 @@ The response is:
 ```
 ### 4. Redirection to the desired URL
 After the creation of a shortened URL, you may navigate to 
-http://<your_server_root_url>/<shortened_url>
+http(s)://<your_server_root_url>/<shortened_url>
 
 The server will redirect you to the configured URL for your specific device.
 
