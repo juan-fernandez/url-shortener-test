@@ -35,8 +35,16 @@ python3 manage.py test
 
 ## Run the server
 ```
-python3 manage.py runserver
+python3 manage.py runserver <your_server_root_url>
 ```
+Make sure your SITE_DOMAIN setting in urlshortener/settings.py is correctly set. This will be used for your responses. 
+
+```
+...
+SITE_DOMAIN = '<your_server_root_url>'
+...
+```
+
 
 ## API description 
 This API is designed to process a given URL and return a shortened version. The server will handle requests to the shortened version of the URLs and redirect to the desired URL.  
@@ -164,7 +172,7 @@ The response is:
 ```
 ### 4. Redirection to the desired URL
 After the creation of a shortened URL, you may navigate to 
-http(s)://<your_server_root_url>/<shortened_url>
+<your_server_root_url>/<shortened_url>
 
 The server will redirect you to the configured URL for your specific device.
 
