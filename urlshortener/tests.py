@@ -7,6 +7,10 @@ from unittest.mock import patch
 from django.utils import timezone
 import datetime
 
+"""
+Test Class to check the correct creation and fetching of URL links and
+graceful errors
+"""
 class CreateAndFetchTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -271,6 +275,10 @@ class CreateAndFetchTest(TestCase):
         }),content_type='application/json')
         self.assertEqual(response.status_code,405)
 
+"""
+Test class to check the configuration of already created URL links and
+graceful errors
+"""
 class ConfigureTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -578,6 +586,10 @@ class ConfigureTest(TestCase):
         self.assertEqual(response.status_code,404)
 
 
+
+"""
+Test class for checking the correct redirection of URLs and graceful errors
+"""
 class RedirectTest(TestCase):
     @classmethod
     def setUpTestData(cls):
