@@ -720,3 +720,12 @@ class RedirectTest(TestCase):
         # wrong method
         response = self.client.post('/%s'%(toBase62(15)),follow=True)
         self.assertEqual(response.status_code,400)
+
+    def test_redirect_big_values(self):
+        # delete initial value first
+        ShortUrl.objects.get(pk=15).delete()
+        for pk in range(1000):
+            ShortUrl.objects.create(id=pk,target_url_desktop='http://google%s.com'%pk,created_at=timezone.now())
+            response = self.client.get('/%s'%(toBase62(pk)),follow=True)
+            last_url, status_code = response.redirect_chain[-1]
+            self.assertEqual(last_url,'http://google%s.com'%pk)
