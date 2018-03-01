@@ -26,7 +26,7 @@ Migrate your database:
 python3 manage.py migrate
 ```
 
-And your are ready to go! 
+And you are ready to go! 
 
 ## Run the tests
 ```
@@ -39,7 +39,17 @@ python3 manage.py runserver
 ```
 
 ## API description 
-Create a new link: POST /api/v1/ with body
+The API allows the user to:
+1. Submit any URL and get a shortened URL back
+2. Get a list of all exiting shortened URLs, with time since creation and number of redirects per device type
+3. Get information of a given shortened URL
+4. Configure a shortened URL to redirect to different targets based on the device type (mobile, tablet and desktop)
+5. Be redirected to the desired URL when navigating to a shortened URL
+ 
+
+
+### 1. Submit a new URL 
+HTTP POST /api/v1/ with body
 ```
 {
   "target_url":"<desired_url>"
@@ -70,9 +80,11 @@ Response:
   ],
 }
 ```
-Get list of all links: GET /api/v1/ 
+### 2. Get a list of all shortened URLs
+HTTP GET /api/v1/ 
 
-Get info of a shortened_link: GET /api/v1/shortened_url/<shortened_url>
+### 3. Get info of an specific shortened URL
+HTTP GET /api/v1/shortened_url/<shortened_url>
 Response:
 ```
 {
@@ -98,8 +110,10 @@ Response:
   ],
 }
 ```
-Modify a shortened_url to act differently depending on the device: 
-POST /api/v1/shortened_url/<shortened_url> with body:
+### 4. Modify a shortened URL
+Modify a shortened_url to act differently depending on the device.
+
+HTTP POST /api/v1/shortened_url/<shortened_url> with body:
 ```
 {
   "target_url_<type_of_device>":"<desired_url>",
@@ -107,7 +121,8 @@ POST /api/v1/shortened_url/<shortened_url> with body:
 }
 ```
 For example, for changing tablet and mobile:
-POST /api/v1/shortened_url/<shortened_url> with body:
+
+HTTP POST /api/v1/shortened_url/<shortened_url> with body:
 ```
 {
   "target_url_tablet":"<desired_url_tablet>",
@@ -139,28 +154,11 @@ The response is:
   ],
 }
 ```
-
-After the setting, you may navigate to 
+### 4. Redirection to the desired URL
+After the creation of a shortened URL, you may navigate to 
 http://<your_server_root_url>/<shortened_url>
 
-And the server will redirect you to your desired URL, depending on the device you use. 
+The server will redirect you to the configured URL for your specific device.
 
-Each of the redirects will be counted in the variable 'num_redirects', i.e. a visit to http://<your_server_root_url>/<shortened_url> with a desktop computer will result in the following state:
-```
-{
-  "result": [
-    {
-      ...
-      "redirects": {
-        ...
-        "desktop": {
-          "target": "<desired_url_desktop>",
-          "num_redirects": 1
-        }
-      }
-    }
-  ],
-}
-```
 
 
