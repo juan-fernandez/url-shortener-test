@@ -1,4 +1,3 @@
-from django.conf.urls import url
 from django.urls import path,register_converter
 from .views import ShortUrlsView,ConfigureUrlView
 from django.views.decorators.csrf import csrf_exempt

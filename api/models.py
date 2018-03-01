@@ -1,6 +1,4 @@
 from django.db import models
-from .utils import toBase62
-from django.db import transaction
 
 class ShortUrl(models.Model):
     created_at = models.DateTimeField('created_at', null=False, blank=False)

@@ -6,8 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect
 from .utils import toBase10
 from django.utils import timezone
-from django.views.decorators.http import require_http_methods
-from django.utils.decorators import method_decorator
 
 # creates a target url to all devices
 class ShortUrlsView(View):
