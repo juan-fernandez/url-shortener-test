@@ -85,6 +85,7 @@ HTTP GET /api/v1/
 
 ### 3. Get info of an specific shortened URL
 HTTP GET /api/v1/shortened_url/<shortened_url>
+
 Response:
 ```
 {
