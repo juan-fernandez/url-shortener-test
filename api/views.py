@@ -40,9 +40,9 @@ class ShortUrlsView(View):
 
 class ShortUrlRedirect(View):
 
-    def get(self,request,shortened_url):
+    def get(self,request,shortened_url_id):
         try:
-            link = ShortUrl.objects.get(pk=toBase10(shortened_url))
+            link = ShortUrl.objects.get(pk=toBase10(shortened_url_id))
         except ObjectDoesNotExist:
             raise Http404()
         # get user device and increase count
@@ -61,18 +61,18 @@ class ShortUrlRedirect(View):
 
 
 class ConfigureUrlView(View):
-    def get(self,request,shortened_url):
+    def get(self,request,shortened_url_id):
         try:
-            link = ShortUrl.objects.get(pk=toBase10(shortened_url))
+            link = ShortUrl.objects.get(pk=toBase10(shortened_url_id))
         except ObjectDoesNotExist:
             return JsonResponse({
                 'status': 'Not found',
             },status=404)
         data = serialize_urls([link])
         return JsonResponse({'result':data},status=200)
-    def post(self,request,shortened_url):
+    def post(self,request,shortened_url_id):
         try:
-            link = ShortUrl.objects.get(pk=toBase10(shortened_url))
+            link = ShortUrl.objects.get(pk=toBase10(shortened_url_id))
         except ObjectDoesNotExist:
             return JsonResponse({
                 'status': 'Not found',

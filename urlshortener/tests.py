@@ -156,14 +156,14 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(shortUrl.created_at, datetime.datetime(2011, 1, 1,tzinfo=timezone.utc))
         pk = shortUrl.pk
         # Check response
-        redirect_url = toBase62(pk)
+        shortened_url_id = toBase62(pk)
         content = response.json()
         self.assertTrue('result' in content)
         result = content['result']
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], shortened_url_id)
         self.assertEqual(datetime.datetime.strptime(result['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
                         datetime.datetime(2011,1,1))
         redirects = result['redirects']
@@ -200,14 +200,14 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(shortUrl.created_at, datetime.datetime(2011, 1, 1,tzinfo=timezone.utc))
         pk = shortUrl.pk
         # Check response
-        redirect_url = toBase62(pk)
+        shortened_url_id = toBase62(pk)
         content = response.json()
         self.assertTrue('result' in content)
         result = content['result']
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], shortened_url_id)
         self.assertEqual(datetime.datetime.strptime(result['created_at'], "%Y-%m-%dT%H:%M:%SZ"),
                         datetime.datetime(2011,1,1))
         redirects = result['redirects']
@@ -229,23 +229,21 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(desktop['target'],'http://jooraccess.com')
 
     def test_repeated_creation(self):
-        # The same request should lead to the same shortened_url
+        # The same request should lead to the same shortened_url_id
         response = self.client.post(reverse('api:all'),json.dumps({
             "target_url":"jooraccess.com"
         }),content_type='application/json')
         self.assertEqual(response.status_code,200)
         shortUrl = ShortUrl.objects.get(target_url_desktop='http://jooraccess.com')
-        redirect_url = toBase62(shortUrl.pk)
+        shortened_url_id = toBase62(shortUrl.pk)
         content = response.json()
-        shortened_url = content['result'][0]['shortened_url'].split('/')[-1]
-        self.assertEqual(redirect_url,shortened_url)
+        self.assertEqual(shortened_url_id,content['result'][0]['shortened_url'].split('/')[-1])
         response_second = self.client.post(reverse('api:all'),json.dumps({
             "target_url":"jooraccess.com"
         }),content_type='application/json')
         self.assertEqual(response.status_code,200)
         content_second = response_second.json()
-        shortened_url_second = content_second['result'][0]['shortened_url'].split('/')[-1]
-        self.assertEqual(redirect_url,shortened_url_second)
+        self.assertEqual(shortened_url_id,content_second['result'][0]['shortened_url'].split('/')[-1])
         # with http added, the same
         response_third = self.client.post(reverse('api:all'),json.dumps({
             "target_url":"http://jooraccess.com"
@@ -253,17 +251,15 @@ class CreateAndFetchTest(TestCase):
         self.assertEqual(response.status_code,200)
         # Check properties
         content_third = response_third.json()
-        shortened_url_third = content_third['result'][0]['shortened_url'].split('/')[-1]
-        self.assertEqual(redirect_url,shortened_url_third)
+        self.assertEqual(shortened_url_id,content_third['result'][0]['shortened_url'].split('/')[-1])
         # with https added, it should be different
         response_fourth = self.client.post(reverse('api:all'),json.dumps({
             "target_url":"https://jooraccess.com"
         }),content_type='application/json')
         self.assertEqual(response.status_code,200)
         # Check properties
-        content_third = response_fourth.json()
-        shortened_url_third = content_third['result'][0]['shortened_url'].split('/')[-1]
-        self.assertNotEqual(redirect_url,shortened_url_third)
+        content_fourth = response_fourth.json()
+        self.assertNotEqual(shortened_url_id,content_fourth['result'][0]['shortened_url'].split('/')[-1])
 
     def test_wrong_http_methods(self):
         response = self.client.put(reverse('api:all'),json.dumps({
@@ -303,7 +299,7 @@ class ConfigureTest(TestCase):
 
     def test_configure_redirects_correct(self):
         # change desktop
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_desktop":"jooraccess.com"
         }),content_type='application/json')
         self.assertEqual(response.status_code,200)
@@ -315,14 +311,14 @@ class ConfigureTest(TestCase):
         self.assertEqual(shortUrl.target_url_tablet,'http://facebook.com')
         pk = shortUrl.pk
         # Check response
-        redirect_url = toBase62(pk)
+        shortened_url_id = toBase62(pk)
         content = response.json()
         self.assertTrue('result' in content)
         result = content['result']
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], shortened_url_id)
         redirects = result['redirects']
         self.assertTrue('mobile' in redirects and 'tablet' in redirects and 'desktop' in redirects)
         # mobile
@@ -342,7 +338,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['target'],'http://jooraccess.com')
 
         # repeated element, should only get the last
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_desktop":"twitter.com",
             "target_url_desktop":"google.com"
         }),content_type='application/json')
@@ -352,14 +348,14 @@ class ConfigureTest(TestCase):
         shortUrl = ShortUrl.objects.get(target_url_desktop='http://google.com')
         pk = shortUrl.pk
         # Check response
-        redirect_url = toBase62(pk)
+        shortened_url_id = toBase62(pk)
         content = response.json()
         self.assertTrue('result' in content)
         result = content['result']
         self.assertEqual(len(result),1)
         result = result[0]
         self.assertTrue('shortened_url' in result and 'redirects' in result and 'created_at' in result)
-        self.assertEqual(result['shortened_url'].split('/')[-1], redirect_url)
+        self.assertEqual(result['shortened_url'].split('/')[-1], shortened_url_id)
         redirects = result['redirects']
         self.assertTrue('mobile' in redirects and 'tablet' in redirects and 'desktop' in redirects)
         # mobile
@@ -369,7 +365,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['target'],'http://google.com')
 
         # change mobile
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_mobile":"jooraccess.com"
         }),content_type='application/json')
         content = response.json()
@@ -393,7 +389,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['target'],'http://google.com')
 
         # change tablet
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_tablet":"jooraccess.com"
         }),content_type='application/json')
         content = response.json()
@@ -417,7 +413,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['target'],'http://google.com')
 
         # change 2 at the same time
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_tablet":"google.com",
             "target_url_desktop":"google.com"
         }),content_type='application/json')
@@ -442,7 +438,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['target'],'http://google.com')
 
         # change 3 at the same time
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_tablet":"twitter.com",
             "target_url_desktop":"instagram.com",
             "target_url_mobile":"facebook.com"
@@ -469,7 +465,7 @@ class ConfigureTest(TestCase):
 
     def test_configure_redirects_wrong(self):
         # Wrong content type
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),{
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),{
         })
         self.assertEqual(response.status_code,400)
         content = response.json()
@@ -477,7 +473,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(content['status'],'Content type must be application/json')
 
         # Wrong JSON
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),{
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),{
             'wrong'
         },content_type='application/json')
         self.assertEqual(response.status_code,400)
@@ -486,7 +482,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(content['status'],'Error found in JSON')
 
         # Wrong JSON 2
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),{
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),{
             "wrong":"wrong"
         },content_type='application/json')
         self.assertEqual(response.status_code,400)
@@ -495,7 +491,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(content['status'],'Error found in JSON')
 
         # Wrong structure
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "wrong":"wrong"
         }),content_type='application/json')
         self.assertEqual(response.status_code,400)
@@ -504,7 +500,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(content['status'],'Invalid request')
 
         # Wrong URL
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_desktop":"asdfasdf"
         }),content_type='application/json')
         self.assertEqual(response.status_code,400)
@@ -513,7 +509,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(content['status'],'Invalid URL asdfasdf')
 
         # One right URL one wrong URL
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}),json.dumps({
             "target_url_mobile":"google.com",
             "target_url_desktop":"asdfasdf",
         }),content_type='application/json')
@@ -525,7 +521,7 @@ class ConfigureTest(TestCase):
 
 
         # Not found shortened_url
-        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url':toBase62(25)}),json.dumps({
+        response = self.client.post(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(25)}),json.dumps({
             "target_url_desktop":"asdfasdf"
         }),content_type='application/json')
         self.assertEqual(response.status_code,404)
@@ -548,7 +544,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(response.content,b'<h1>Not Found</h1><p>The requested URL /shortened_url/ was not found on this server.</p>')
 
     def test_get_shortened_url_info(self):
-        response = self.client.get(reverse('api:configure_view',kwargs={'shortened_url':toBase62(15)}))
+        response = self.client.get(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(15)}))
         self.assertEqual(response.status_code,200)
         # check correct info
         content = response.json()
@@ -576,7 +572,7 @@ class ConfigureTest(TestCase):
         self.assertEqual(desktop['num_redirects'],0)
         self.assertEqual(desktop['target'],'http://google.com')
 
-        response = self.client.get(reverse('api:configure_view',kwargs={'shortened_url':toBase62(25)}))
+        response = self.client.get(reverse('api:configure_view',kwargs={'shortened_url_id':toBase62(25)}))
         self.assertEqual(response.status_code,404)
         response = self.client.get('/shortened_url/lkjar@')
         self.assertEqual(response.status_code,404)

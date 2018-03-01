@@ -8,6 +8,6 @@ from api.utils import ShortenedUrlMatcher
 register_converter(ShortenedUrlMatcher, 'shorturl')
 
 urlpatterns = [
-    path('<shorturl:shortened_url>/',ShortUrlRedirect.as_view(),name='shortened_url'),
+    path('<shorturl:shortened_url_id>/',ShortUrlRedirect.as_view(),name='shortened_url'),
     path('api/v1/',include('api.urls')),
 ]
