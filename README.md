@@ -170,11 +170,11 @@ The response is:
   ],
 }
 ```
-### 4. Redirection to the desired URL
+### 5. Redirection to the desired URL
 After the creation of a shortened URL, you may navigate to 
 <your_server_root_url>/<shortened_url>
 
-The server will redirect you to the configured URL for your specific device.
+The server will redirect you to the configured URL for your specific device and update the number of redirects num_redirects variable.
 
 
 
