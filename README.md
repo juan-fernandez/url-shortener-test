@@ -56,15 +56,15 @@ https://www.youtube.com/watch?v=FlsCjmMhFmw > <your_server_root_url>/<shortened_
 The shortened_url_id is a unique identifier of this link.
 
 The API allows the user to:
-1. Submit any URL and get a shortened URL back
-2. Get a list of all exiting shortened URLs, with time since creation and number of redirects per device type
-3. Get information of a given shortened URL
-4. Configure a shortened URL to redirect to different targets based on the device type (mobile, tablet and desktop)
-5. Be redirected to the desired URL when navigating to a shortened URL
+1. Submit any URL and get a shortened URL back.
+2. Get a list of all exiting shortened URLs, with time since creation and number of redirects per device type.
+3. Get information of a given shortened URL.
+4. Configure a shortened URL to redirect to different targets based on the device type (mobile, tablet and desktop).
+5. Be redirected to the desired URL when navigating to a shortened URL.
 
 
 ### 1. Submit a new URL 
-HTTP POST /api/v1/ with body
+**HTTP POST /api/v1/** with body:
 ```
 {
   "target_url":"<desired_url>"
@@ -96,10 +96,10 @@ Response:
 }
 ```
 ### 2. Get a list of all shortened URLs
-HTTP GET /api/v1/ 
+**HTTP GET /api/v1/**
 
 ### 3. Get info of an specific shortened URL
-HTTP GET /api/v1/shortened_url/{shortened_url_id}
+**HTTP GET /api/v1/shortened_url/{shortened_url_id}**
 
 Response:
 ```
@@ -129,7 +129,7 @@ Response:
 ### 4. Modify a shortened URL
 Modify a shortened_url to act differently depending on the device.
 
-HTTP POST /api/v1/shortened_url/{shortened_url_id} with body:
+**HTTP POST /api/v1/shortened_url/{shortened_url_id}** with body:
 ```
 {
   "target_url_<type_of_device>":"<desired_url>",
@@ -138,7 +138,7 @@ HTTP POST /api/v1/shortened_url/{shortened_url_id} with body:
 ```
 For example, for changing tablet and mobile:
 
-HTTP POST /api/v1/shortened_url/{shortened_url_id} with body:
+**HTTP POST /api/v1/shortened_url/{shortened_url_id}** with body:
 ```
 {
   "target_url_tablet":"<desired_url_tablet>",
